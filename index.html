@@ -1,0 +1,75 @@
+<head>
+  <title>Shoot for your life</title>
+  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-animation-component@5.1.2/dist/aframe-animation-component.min.js"></script>
+  <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
+  <script src="aframe-super-shooter-kit.min.js"></script>
+  <script>
+    /**
+     * Click mouse to shoot.
+     */
+    AFRAME.registerComponent('click-to-shoot', {
+      init: function () {
+        document.body.addEventListener('mousedown', () => { this.el.emit('shoot'); });
+      }
+    });
+
+    /**
+     * Change color when hit.
+     */
+    AFRAME.registerComponent('hit-handler', {
+      dependencies: ['material'],
+
+      init: function () {
+        var color;
+        var el = this.el;
+
+        color = new THREE.Color();
+        color.set('#666');
+        el.components.material.material.color.copy(color);
+        el.addEventListener('hit', () => {
+          color.addScalar(0.05);
+          el.components.material.material.color.copy(color);
+        });
+
+        el.addEventListener('die', () => {
+          color.setRGB(1, 0, 0);
+          el.components.material.material.color.copy(color);
+        });
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <a-scene>
+  
+  <a-entity environment= "preset: forest; dressing: mushrooms;seed:3;skytype: gradient;grid: xlines; playarea: 1 "></a-entity>
+      <a-sky></a-sky>
+	  
+	  
+    <a-entity id="bulletTemplate" bullet geometry="primitive: sphere; radius: 0.1" material="color: orange"></a-entity>
+
+    <a-entity class="target" target="healthPoints: 40" geometry="primitive: box" material="color: teal" position="0 0 -4" hit-handler></a-entity>
+	
+	<a-text value="Shoot until the box gets red"  negate="false" scale="2 2 1" position="-8 2 -4"></a-text>
+
+
+    <a-entity id="gun" shooter geometry="primitive: sphere; radius: 0.3" material="color: red" click-to-shoot position="0 0 -1	a-entity>
+	
+    <a-cylinder color="#F55" radius="0.1"
+                animation="property: components.material.material.color; type: color; dir: alternate; dur: 1000;
+                           easing: easeInSine; loop: true; to: #5F5"
+                animation__scale="property: scale; dir: alternate; dur: 200;
+                           easing: easeInSine; loop: true; to: 1.2 1 1.2"
+                animation__yoyo="property: position; dir: alternate; dur: 1000;
+                                 easing: easeInSine; loop: true; to: 0 4 0">
+    </a-cylinder>
+
+
+
+    <a-camera id="camera" position="-1 0 0" shooter click-to-shoot>
+	<a-cursor></a-cursor>
+	</a-camera>
+  </a-scene>
+</body>
